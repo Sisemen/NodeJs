@@ -1,7 +1,10 @@
 const config = require('./config.json');
 const express = require("express");
+const dotenv = require('dotenv');
 const app = express();
 const { Sequelize, DataTypes } = require('sequelize');
+
+dotenv.config();
 
 app.listen(config.app.port, () => {
     console.log("server listening on", config.app.port);
@@ -19,26 +22,6 @@ var sequelize = new Sequelize(config.connectionString,
   }
 });
 
-(async () => {
-  await sequelize.sync({alter: true});
-});
-
-app.put('/registerPerson', (req, res) => {
-  (async () => {
-    var john = await Person.create({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        age: req.body.age
-    });
-  
-    console.log(john.toJSON());
-    
-    res.writeHead(200, { 'Allow': 'GET, POST' });
-    res.write("Person has been created successfully.");
-    res.end();
-  });
-});
-
 const Person = sequelize.define('persons', {
     firstname: {
       type: DataTypes.STRING,
@@ -52,4 +35,31 @@ const Person = sequelize.define('persons', {
     }
   }, {
     timestamps: false
+});
+
+(async () => {
+  await sequelize.sync({alter: true});
+});
+
+app.get('/', (req, res) => {
+  res.writeHead(200);
+  res.write('Hello World!');
+
+  res.end();
+});
+
+app.put('/registerPerson', (req, res) => {
+  (async () => {
+    var john = await Person.create({
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        age: req.body.age
+    });
+  
+    console.log(john.toJSON());
+    
+    res.writeHead(200);
+    res.write("Person has been created successfully.");
+    res.end();
+  })();
 });
